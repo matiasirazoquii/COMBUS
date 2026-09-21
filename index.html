@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full bg-slate-950 text-slate-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FuelWallet Pro - Control de Saldo de Combustible</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Font Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        navy: {
+                            800: '#0f172a',
+                            900: '#0b1120',
+                            950: '#050811',
+                        },
+                        brand: {
+                            blue: '#1d4ed8',
+                            lightBlue: '#3b82f6',
+                            accent: '#2563eb'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #050811;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #334155;
+        }
+
+        @keyframes debtGlow {
+            0%, 100% { box-shadow: 0 0 18px rgba(225, 29, 72, 0.35); border-color: rgba(225, 29, 72, 0.7); }
+            50% { box-shadow: 0 0 30px rgba(225, 29, 72, 0.75); border-color: rgba(225, 29, 72, 1); }
+        }
+
+        .debt-alert-card {
+            animation: debtGlow 2.2s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body class="h-full flex flex-col font-sans bg-[#050811] text-slate-100 antialiased selection:bg-blue-600 selection:text-white">
+
+    <div id="app" class="min-h-screen flex flex-col">
+
+        <!-- Top Header Navigation -->
+        <header class="bg-slate-900/90 backdrop-blur-md border-b border-slate-800/80 sticky top-0 z-30">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex items-center justify-between h-16">
+                    
+                    <!-- Brand / Logo -> Replaced FuelWallet with T.R.I -->
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-700 via-blue-600 to-indigo-500 flex items-center justify-center shadow-lg shadow-blue-900/50 border border-blue-400/30 font-black text-white text-sm tracking-wider">
+                            T.R.I
+                        </div>
+                        <div>
+                            <span class="text-2xl font-black tracking-widest bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent">T.R.I</span>
+                            <span class="hidden sm:inline-block text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-950 text-blue-400 border border-blue-800/80 ml-2">Control de Saldo</span>
+                        </div>
+                    </div>
+
+                    <!-- Cloud Device Status Info -->
+                    <div class="flex items-center gap-3">
+                        <div class="flex items-center gap-2 bg-slate-950/80 border border-slate-800 px-3 py-1.5 rounded-xl text-xs text-slate-300">
+                            <span class="relative flex h-2 w-2">
+                              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                              <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                            </span>
+                            <i class="fa-solid fa-cloud text-blue-400 text-sm ml-1"></i>
+                            <span id="userStatusText" class="hidden sm:inline">Sincronizado en tiempo real</span>
+                        </div>
+                        <div class="w-9 h-9 rounded-xl bg-slate-800 border border-slate-700/80 flex items-center justify-center text-blue-400 font-bold text-xs shadow-inner">
+                            <i class="fa-solid fa-user-shield"></i>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </header>
+
+        <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+            <!-- Summary KPI Cards Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+                
+                <!-- Balance Card (Normal / Debt State) -->
+                <div id="balanceCard" class="relative overflow-hidden bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl transition-all duration-300">
+                    <div class="flex justify-between items-start mb-2">
+                        <span id="balanceLabel" class="text-xs font-bold uppercase tracking-wider text-slate-400">SALDO DISPONIBLE</span>
+                        <div id="balanceIconContainer" class="w-9 h-9 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center">
+                            <i class="fa-solid fa-wallet text-base"></i>
+                        </div>
+                    </div>
+                    <div id="balanceAmountContainer" class="flex items-baseline gap-2">
+                        <span id="balanceAmount" class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white">$ 0.00</span>
+                    </div>
+                    <p id="balanceSubtitle" class="text-xs text-slate-500 mt-2 flex items-center gap-1.5">
+                        <i class="fa-solid fa-rotate text-blue-400 text-[10px]"></i> Sincronizado en todos tus dispositivos
+                    </p>
+                    
+                    <div id="balanceGlow" class="absolute -right-10 -bottom-10 w-32 h-32 bg-blue-600/10 rounded-full blur-2xl pointer-events-none"></div>
+                </div>
+
+                <!-- Total Recharged Card -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl relative overflow-hidden">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="text-xs font-bold uppercase tracking-wider text-slate-400">TOTAL RECARGADO</span>
+                        <div class="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center">
+                            <i class="fa-solid fa-circle-arrow-down text-base"></i>
+                        </div>
+                    </div>
+                    <div class="flex items-baseline">
+                        <span id="totalRecharged" class="text-3xl sm:text-4xl font-extrabold tracking-tight text-emerald-400">$ 0.00</span>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-2">Suma acumulada de ingresos</p>
+                </div>
+
+                <!-- Total Fuel Spent Card -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl relative overflow-hidden">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="text-xs font-bold uppercase tracking-wider text-slate-400">TOTAL GASTADO</span>
+                        <div class="w-9 h-9 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-center">
+                            <i class="fa-solid fa-circle-arrow-up text-base"></i>
+                        </div>
+                    </div>
+                    <div class="flex items-baseline">
+                        <span id="totalSpent" class="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-100">$ 0.00</span>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-2">Total descontado por consumo</p>
+                </div>
+
+                <!-- Total Liters Pumped Card -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl relative overflow-hidden">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="text-xs font-bold uppercase tracking-wider text-slate-400">LITROS CARGADOS</span>
+                        <div class="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center">
+                            <i class="fa-solid fa-oil-can text-base"></i>
+                        </div>
+                    </div>
+                    <div class="flex items-baseline">
+                        <span id="totalLiters" class="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-100">0.00 L</span>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-2">Volumen de combustible despachado</p>
+                </div>
+
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+                <!-- PANEL 1: Nueva Recarga de Saldo -->
+                <div class="bg-slate-900 border border-slate-800/90 rounded-2xl p-6 shadow-xl relative">
+                    <div class="flex items-center gap-3 pb-4 mb-5 border-b border-slate-800">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center justify-center">
+                            <i class="fa-solid fa-plus-circle text-lg"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-lg font-bold text-white">Nueva Recarga de Saldo</h2>
+                            <p class="text-xs text-slate-400">Abona dinero a la cuenta de combustible</p>
+                        </div>
+                    </div>
+
+                    <form id="rechargeForm" class="space-y-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-300 mb-1">Monto a Cargar ($)</label>
+                                <div class="relative">
+                                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-500 font-bold">$</span>
+                                    <input type="number" step="0.01" min="0.01" required id="rechargeAmount" placeholder="0.00"
+                                        class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-8 pr-4 py-2.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-medium text-slate-300 mb-1">Fecha de Operación</label>
+                                <input type="datetime-local" required id="rechargeDate"
+                                    class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-slate-300 mb-1">Método de Pago / Referencia / Nota</label>
+                            <input type="text" id="rechargeNote" placeholder="Ej: Transferencia bancaria, Depósito, Factura #402"
+                                class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition">
+                        </div>
+
+                        <button type="submit" id="btnSubmitRecharge" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-semibold py-3 px-4 rounded-xl shadow-lg shadow-emerald-950/50 flex items-center justify-center gap-2 transition duration-200">
+                            <i class="fa-solid fa-download"></i>
+                            <span>Cargar Saldo a la Cuenta</span>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- PANEL 2: Registrar Nuevo Gasto de Saldo -->
+                <div class="bg-slate-900 border border-slate-800/90 rounded-2xl p-6 shadow-xl relative">
+                    <div class="flex items-center gap-3 pb-4 mb-5 border-b border-slate-800">
+                        <div class="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-400 border border-blue-500/30 flex items-center justify-center">
+                            <i class="fa-solid fa-receipt text-lg"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-lg font-bold text-white">Cargar Nuevo Gasto de Combustible</h2>
+                            <p class="text-xs text-slate-400">Descuenta el importe gastado del saldo global</p>
+                        </div>
+                    </div>
+
+                    <form id="expenseForm" class="space-y-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-300 mb-1">Costo Total ($)</label>
+                                <div class="relative">
+                                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-500 font-bold">$</span>
+                                    <input type="number" step="0.01" min="0.01" required id="expenseAmount" placeholder="0.00"
+                                        class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-8 pr-4 py-2.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-medium text-slate-300 mb-1">Litros Cargados</label>
+                                <div class="relative">
+                                    <input type="number" step="0.01" min="0.01" required id="expenseLiters" placeholder="0.00"
+                                        class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-4 pr-8 py-2.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition">
+                                    <span class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-500 font-medium text-xs">L</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-300 mb-1">Vehículo / Matrícula</label>
+                                <input type="text" id="expenseVehicle" placeholder="Ej: Camión 04 / ABC-123"
+                                    class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition">
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-medium text-slate-300 mb-1">Fecha de Carga</label>
+                                <input type="datetime-local" required id="expenseDate"
+                                    class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-slate-300 mb-1">Observación / Estación / Detalle</label>
+                            <input type="text" id="expenseNote" placeholder="Ej: Chofer Juan, Estación YPF Km 42"
+                                class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition">
+                        </div>
+
+                        <button type="submit" id="btnSubmitExpense" class="w-full bg-gradient-to-r from-blue-700 to-indigo-600 hover:from-blue-600 hover:to-indigo-500 text-white font-semibold py-3 px-4 rounded-xl shadow-lg shadow-blue-950/50 flex items-center justify-center gap-2 transition duration-200">
+                            <i class="fa-solid fa-minus-circle"></i>
+                            <span>Descontar Gasto de Saldo</span>
+                        </button>
+                    </form>
+                </div>
+
+            </div>
+
+            <!-- Transactions History Section -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl shadow-xl overflow-hidden">
+                <div class="p-6 border-b border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-list-check text-blue-400"></i>
+                            Historial de Transacciones
+                        </h2>
+                        <p class="text-xs text-slate-400 mt-0.5">Control y corrección de recargas y consumos en tiempo real</p>
+                    </div>
+
+                    <!-- Search and Filter Tools -->
+                    <div class="flex flex-wrap items-center gap-3">
+                        <div class="relative flex-1 sm:w-64">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+                            <input type="text" id="searchFilter" placeholder="Buscar por nota o vehículo..."
+                                class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-4 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 transition">
+                        </div>
+
+                        <select id="typeFilter" class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500 transition">
+                            <option value="ALL">Todas las Transacciones</option>
+                            <option value="RECHARGE">Solo Recargas</option>
+                            <option value="EXPENSE">Solo Gastos</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Table Container -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm text-slate-300">
+                        <thead class="bg-slate-950/80 text-xs uppercase text-slate-400 tracking-wider border-b border-slate-800">
+                            <tr>
+                                <th scope="col" class="py-3.5 px-6">Tipo</th>
+                                <th scope="col" class="py-3.5 px-6">Fecha</th>
+                                <th scope="col" class="py-3.5 px-6">Detalles / Vehículo</th>
+                                <th scope="col" class="py-3.5 px-6 text-right">Litros</th>
+                                <th scope="col" class="py-3.5 px-6 text-right">Monto</th>
+                                <th scope="col" class="py-3.5 px-6 text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transactionList" class="divide-y divide-slate-800/60">
+                            <tr>
+                                <td colspan="6" class="text-center py-12 text-slate-500">
+                                    <div class="inline-block animate-spin rounded-full h-8 w-8 border-2 border-blue-500 border-t-transparent mb-2"></div>
+                                    <p class="text-xs">Sincronizando movimientos desde la nube...</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="p-4 bg-slate-950/40 border-t border-slate-800 flex justify-between items-center text-xs text-slate-500">
+                    <span id="transactionCount">Mostrando 0 registros</span>
+                    <span><i class="fa-solid fa-rotate-left text-blue-400 mr-1"></i> Borrar un registro recalcula automáticamente el saldo</span>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Footer -->
+        <footer class="bg-slate-950 border-t border-slate-900 py-6 mt-auto">
+            <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-600">
+                <p>&copy; 2026 T.R.I - Control de Saldo de Combustible.</p>
+            </div>
+        </footer>
+
+    </div>
+
+    <!-- Modal for Delete Confirmation -->
+    <div id="deleteModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
+            <div class="flex items-center gap-3 text-rose-500">
+                <div class="w-10 h-10 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-500">
+                    <i class="fa-solid fa-trash-can text-lg"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-white">¿Eliminar Transacción?</h3>
+                    <p class="text-xs text-slate-400">¿Deseas revertir este movimiento?</p>
+                </div>
+            </div>
+
+            <p class="text-sm text-slate-300">
+                Si te equivocaste al registrar esta recarga o gasto, al eliminarla el **saldo global se recalculará automáticamente en tiempo real** en todos tus dispositivos.
+            </p>
+
+            <div class="flex items-center justify-end gap-3 pt-2">
+                <button id="btnCancelDelete" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-300 bg-slate-800 hover:bg-slate-700 transition">
+                    Cancelar
+                </button>
+                <button id="btnConfirmDelete" class="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-rose-600 hover:bg-rose-500 transition shadow-lg shadow-rose-950/50">
+                    Sí, Eliminar y Recalcular
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none flex items-center gap-3 bg-slate-900 border border-slate-700 text-slate-100 px-4 py-3 rounded-xl shadow-2xl">
+        <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400 text-lg"></i>
+        <span id="toastMessage" class="text-sm font-medium">Operación realizada</span>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { 
+            getAuth, 
+            signInAnonymously, 
+            signInWithCustomToken, 
+            onAuthStateChanged 
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { 
+            getFirestore, 
+            collection, 
+            doc, 
+            addDoc, 
+            deleteDoc, 
+            onSnapshot 
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Global environment variables provided by framework
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'fuel-wallet-v2';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' 
+            ? JSON.parse(__firebase_config) 
+            : {
+                apiKey: "demo-key",
+                authDomain: "demo.firebaseapp.com",
+                projectId: "demo-project",
+                storageBucket: "demo.appspot.com",
+                messagingSenderId: "123456789",
+                appId: "1:123456789:web:demo"
+            };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Application State
+        let currentUser = null;
+        let transactions = [];
+        let itemToDeleteId = null;
+
+        // UI DOM Element Handles
+        const userStatusText = document.getElementById('userStatusText');
+        const balanceCard = document.getElementById('balanceCard');
+        const balanceLabel = document.getElementById('balanceLabel');
+        const balanceAmount = document.getElementById('balanceAmount');
+        const balanceIconContainer = document.getElementById('balanceIconContainer');
+        const balanceGlow = document.getElementById('balanceGlow');
+        const totalRecharged = document.getElementById('totalRecharged');
+        const totalSpent = document.getElementById('totalSpent');
+        const totalLiters = document.getElementById('totalLiters');
+        const transactionList = document.getElementById('transactionList');
+        const transactionCount = document.getElementById('transactionCount');
+        const searchFilter = document.getElementById('searchFilter');
+        const typeFilter = document.getElementById('typeFilter');
+
+        // Preset current date/time in inputs
+        const now = new Date();
+        const nowISO = new Date(now.getTime() - (now.getTimezoneOffset() * 60000)).toISOString().slice(0, 16);
+        document.getElementById('rechargeDate').value = nowISO;
+        document.getElementById('expenseDate').value = nowISO;
+
+        // Toast Notification Helper
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            const toastIcon = document.getElementById('toastIcon');
+
+            toastMessage.textContent = message;
+            if (isError) {
+                toastIcon.className = "fa-solid fa-circle-exclamation text-rose-500 text-lg";
+                toast.className = toast.className.replace('border-slate-700', 'border-rose-800');
+            } else {
+                toastIcon.className = "fa-solid fa-circle-check text-emerald-400 text-lg";
+                toast.className = toast.className.replace('border-rose-800', 'border-slate-700');
+            }
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3500);
+        }
+
+        // Authentication Flow (Rule 3)
+        async function authenticateUser() {
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (err) {
+                console.error("Auth error:", err);
+                try {
+                    await signInAnonymously(auth);
+                } catch (e) {
+                    showToast("Error de conexión a la nube", true);
+                }
+            }
+        }
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                if (userStatusText) userStatusText.textContent = "Sincronizado en la Nube";
+                subscribeToData();
+            } else {
+                authenticateUser();
+            }
+        });
+
+        function subscribeToData() {
+            if (!currentUser) return;
+
+            // Strict path (Rule 1)
+            const transactionsCol = collection(db, 'artifacts', appId, 'public', 'data', 'transactions');
+
+            onSnapshot(transactionsCol, (snapshot) => {
+                const fetched = [];
+                snapshot.forEach((docSnap) => {
+                    fetched.push({
+                        id: docSnap.id,
+                        ...docSnap.data()
+                    });
+                });
+
+                // In-memory sorting by date descending (Rule 2)
+                fetched.sort((a, b) => new Date(b.date) - new Date(a.date));
+                
+                transactions = fetched;
+                renderDashboard();
+            }, (error) => {
+                console.error("Firestore listener error:", error);
+                showToast("Error al sincronizar datos", true);
+            });
+        }
+
+        function renderDashboard() {
+            let rechargedTotal = 0;
+            let spentTotal = 0;
+            let litersTotal = 0;
+
+            transactions.forEach(t => {
+                const amount = parseFloat(t.amount) || 0;
+                if (t.type === 'RECHARGE') {
+                    rechargedTotal += amount;
+                } else if (t.type === 'EXPENSE') {
+                    spentTotal += amount;
+                    litersTotal += (parseFloat(t.liters) || 0);
+                }
+            });
+
+            const currentBalance = rechargedTotal - spentTotal;
+
+            // Update Statistics
+            totalRecharged.textContent = `$ ${rechargedTotal.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            totalSpent.textContent = `$ ${spentTotal.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            totalLiters.textContent = `${litersTotal.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} L`;
+
+            // SALDO DEUDA vs SALDO POSITIVO LOGIC
+            if (currentBalance < 0) {
+                // Negative Balance State -> Show DEUDA in red
+                balanceAmount.textContent = `$ ${Math.abs(currentBalance).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                balanceAmount.className = "text-3xl sm:text-4xl font-black tracking-tight text-rose-500 animate-pulse";
+                
+                balanceLabel.className = "text-xs font-black tracking-wider text-rose-400 flex items-center gap-1.5";
+                balanceLabel.innerHTML = `<span class="px-2 py-0.5 rounded bg-rose-950 text-rose-400 border border-rose-800 font-extrabold text-[11px]">DEUDA</span> CUENTA EN DEUDA`;
+
+                balanceCard.className = "relative overflow-hidden bg-slate-900 border-2 border-rose-600/80 rounded-2xl p-6 shadow-2xl debt-alert-card transition-all duration-300";
+                balanceIconContainer.className = "w-9 h-9 rounded-xl bg-rose-500/20 border border-rose-500/40 text-rose-400 flex items-center justify-center";
+                balanceIconContainer.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-lg"></i>';
+                balanceGlow.className = "absolute -right-10 -bottom-10 w-36 h-36 bg-rose-600/25 rounded-full blur-2xl pointer-events-none";
+
+            } else {
+                // Positive or Zero Balance State -> Standard Green/Blue
+                balanceAmount.textContent = `$ ${currentBalance.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                balanceAmount.className = "text-3xl sm:text-4xl font-extrabold tracking-tight text-white";
+                
+                balanceLabel.className = "text-xs font-bold uppercase tracking-wider text-slate-400";
+                balanceLabel.textContent = "SALDO DISPONIBLE";
+
+                balanceCard.className = "relative overflow-hidden bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl transition-all duration-300";
+                balanceIconContainer.className = "w-9 h-9 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center";
+                balanceIconContainer.innerHTML = '<i class="fa-solid fa-wallet text-base"></i>';
+                balanceGlow.className = "absolute -right-10 -bottom-10 w-32 h-32 bg-blue-600/10 rounded-full blur-2xl pointer-events-none";
+            }
+
+            renderTable();
+        }
+
+        function renderTable() {
+            const searchTerm = searchFilter.value.toLowerCase().trim();
+            const filterTypeValue = typeFilter.value;
+
+            const filtered = transactions.filter(t => {
+                const matchesSearch = (t.note || '').toLowerCase().includes(searchTerm) || 
+                                      (t.vehicle || '').toLowerCase().includes(searchTerm);
+                const matchesType = filterTypeValue === 'ALL' || t.type === filterTypeValue;
+                return matchesSearch && matchesType;
+            });
+
+            transactionCount.textContent = `Mostrando ${filtered.length} de ${transactions.length} registros`;
+
+            if (filtered.length === 0) {
+                transactionList.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="text-center py-12 text-slate-500">
+                            <i class="fa-solid fa-receipt text-3xl mb-2 block text-slate-700"></i>
+                            <p class="text-sm font-medium text-slate-400">No hay movimientos registrados.</p>
+                            <p class="text-xs text-slate-600 mt-1">Carga una recarga de saldo o un consumo para comenzar.</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            transactionList.innerHTML = filtered.map(t => {
+                const isRecharge = t.type === 'RECHARGE';
+                const formattedDate = new Date(t.date).toLocaleString('es-AR', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+                return `
+                    <tr class="hover:bg-slate-800/40 transition duration-150">
+                        <td class="py-4 px-6">
+                            ${isRecharge 
+                                ? `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
+                                    <i class="fa-solid fa-arrow-down"></i> Recarga
+                                   </span>`
+                                : `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-blue-500/10 border border-blue-500/20 text-blue-400">
+                                    <i class="fa-solid fa-arrow-up"></i> Gasto
+                                   </span>`
+                            }
+                        </td>
+                        <td class="py-4 px-6 text-xs text-slate-300 font-mono">
+                            ${formattedDate}
+                        </td>
+                        <td class="py-4 px-6">
+                            <div class="font-medium text-white text-xs">${t.note || (isRecharge ? 'Recarga de Saldo' : 'Consumo de Combustible')}</div>
+                            ${t.vehicle ? `<div class="text-[11px] text-blue-400 font-mono mt-0.5"><i class="fa-solid fa-truck-monster text-[10px] mr-1"></i>${t.vehicle}</div>` : ''}
+                        </td>
+                        <td class="py-4 px-6 text-right font-mono text-xs text-slate-300">
+                            ${t.liters ? `${parseFloat(t.liters).toFixed(2)} L` : '-'}
+                        </td>
+                        <td class="py-4 px-6 text-right font-bold font-mono ${isRecharge ? 'text-emerald-400' : 'text-slate-100'}">
+                            ${isRecharge ? '+' : '-'}$ ${parseFloat(t.amount).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </td>
+                        <td class="py-4 px-6 text-center">
+                            <button data-id="${t.id}" class="btn-delete hover:bg-rose-500/20 text-slate-500 hover:text-rose-400 p-2 rounded-lg transition" title="Borrar transacción si te equivocaste">
+                                <i class="fa-solid fa-trash-can text-sm"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            // Attach event listeners to delete buttons
+            document.querySelectorAll('.btn-delete').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const id = e.currentTarget.getAttribute('data-id');
+                    openDeleteModal(id);
+                });
+            });
+        }
+
+        // Submit Recharge Form
+        document.getElementById('rechargeForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!currentUser) return;
+
+            const amount = parseFloat(document.getElementById('rechargeAmount').value);
+            const date = document.getElementById('rechargeDate').value;
+            const note = document.getElementById('rechargeNote').value.trim();
+
+            if (!amount || amount <= 0) return;
+
+            const btn = document.getElementById('btnSubmitRecharge');
+            btn.disabled = true;
+            btn.classList.add('opacity-50');
+
+            try {
+                const transactionsCol = collection(db, 'artifacts', appId, 'public', 'data', 'transactions');
+                await addDoc(transactionsCol, {
+                    type: 'RECHARGE',
+                    amount: amount,
+                    date: date,
+                    note: note || 'Recarga de Saldo',
+                    createdAt: new Date().toISOString()
+                });
+
+                document.getElementById('rechargeForm').reset();
+                document.getElementById('rechargeDate').value = new Date(new Date().getTime() - (new Date().getTimezoneOffset() * 60000)).toISOString().slice(0, 16);
+                showToast("Recarga abonada correctamente");
+            } catch (err) {
+                console.error("Error saving recharge:", err);
+                showToast("Error al abonar la recarga", true);
+            } finally {
+                btn.disabled = false;
+                btn.classList.remove('opacity-50');
+            }
+        });
+
+        // Submit Fuel Expense Form
+        document.getElementById('expenseForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!currentUser) return;
+
+            const amount = parseFloat(document.getElementById('expenseAmount').value);
+            const liters = parseFloat(document.getElementById('expenseLiters').value);
+            const vehicle = document.getElementById('expenseVehicle').value.trim();
+            const date = document.getElementById('expenseDate').value;
+            const note = document.getElementById('expenseNote').value.trim();
+
+            if (!amount || amount <= 0) return;
+
+            const btn = document.getElementById('btnSubmitExpense');
+            btn.disabled = true;
+            btn.classList.add('opacity-50');
+
+            try {
+                const transactionsCol = collection(db, 'artifacts', appId, 'public', 'data', 'transactions');
+                await addDoc(transactionsCol, {
+                    type: 'EXPENSE',
+                    amount: amount,
+                    liters: liters || 0,
+                    vehicle: vehicle || '',
+                    date: date,
+                    note: note || 'Gasto de Combustible',
+                    createdAt: new Date().toISOString()
+                });
+
+                document.getElementById('expenseForm').reset();
+                document.getElementById('expenseDate').value = new Date(new Date().getTime() - (new Date().getTimezoneOffset() * 60000)).toISOString().slice(0, 16);
+                showToast("Gasto descontado del saldo");
+            } catch (err) {
+                console.error("Error saving expense:", err);
+                showToast("Error al registrar el consumo", true);
+            } finally {
+                btn.disabled = false;
+                btn.classList.remove('opacity-50');
+            }
+        });
+
+        const deleteModal = document.getElementById('deleteModal');
+        const btnCancelDelete = document.getElementById('btnCancelDelete');
+        const btnConfirmDelete = document.getElementById('btnConfirmDelete');
+
+        function openDeleteModal(id) {
+            itemToDeleteId = id;
+            deleteModal.classList.remove('hidden');
+        }
+
+        function closeDeleteModal() {
+            itemToDeleteId = null;
+            deleteModal.classList.add('hidden');
+        }
+
+        btnCancelDelete.addEventListener('click', closeDeleteModal);
+
+        btnConfirmDelete.addEventListener('click', async () => {
+            if (!itemToDeleteId || !currentUser) return;
+
+            try {
+                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'transactions', itemToDeleteId);
+                await deleteDoc(docRef);
+                showToast("Transacción eliminada. Saldo recalculado");
+            } catch (err) {
+                console.error("Error deleting transaction:", err);
+                showToast("Error al eliminar la transacción", true);
+            } finally {
+                closeDeleteModal();
+            }
+        });
+
+        // Search & Filter event listeners
+        searchFilter.addEventListener('input', renderTable);
+        typeFilter.addEventListener('change', renderTable);
+
+        // Auto initialization
+        window.onload = function() {
+            authenticateUser();
+        };
+    </script>
+</body>
+</html>
