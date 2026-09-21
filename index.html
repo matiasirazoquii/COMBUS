@@ -70,7 +70,7 @@
 <body class="min-h-screen flex flex-col justify-between selection:bg-blue-600 selection:text-white">
 
     <!-- APP CONTAINER -->
-    <div id="app" class="flex-1 flex flex-col">
+    <div class="flex-1 flex flex-col">
         
         <!-- HEADER -->
         <header class="border-b border-gray-800/80 bg-black/60 backdrop-blur-md sticky top-0 z-40">
@@ -93,18 +93,11 @@
                         </div>
                     </div>
 
-                    <!-- USER / SYNC STATUS -->
+                    <!-- ESTATUS -->
                     <div class="flex items-center space-x-4">
-                        <div id="syncBadge" class="hidden sm:flex items-center space-x-2 px-3 py-1.5 rounded-full bg-gray-900 border border-gray-800 text-xs text-gray-400">
-                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                            <span class="font-mono text-gray-300">Nube Activa</span>
-                        </div>
-                        
-                        <div id="userProfile" class="hidden items-center space-x-3 bg-gray-900/80 border border-gray-800 pl-3 pr-2 py-1.5 rounded-xl">
-                            <span id="userEmail" class="text-xs font-medium text-gray-300 max-w-[140px] sm:max-w-[200px] truncate">usuario@tri.com</span>
-                            <button id="btnLogout" class="p-1.5 hover:bg-gray-800 text-gray-400 hover:text-red-400 rounded-lg transition-colors" title="Cerrar sesión">
-                                <i class="fa-solid fa-right-from-bracket"></i>
-                            </button>
+                        <div class="flex items-center space-x-2 px-3 py-1.5 rounded-full bg-gray-900 border border-gray-800 text-xs text-gray-400">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                            <span class="font-mono text-gray-300">Modo Directo</span>
                         </div>
                     </div>
                 </div>
@@ -114,48 +107,8 @@
         <!-- MAIN CONTENT AREA -->
         <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
 
-            <!-- AUTH OVERLAY / LOGIN CONTAINER (Muestra si no se ha autenticado) -->
-            <div id="authSection" class="max-w-md mx-auto my-12 glass-card rounded-2xl p-8 shadow-2xl border border-gray-800 relative overflow-hidden">
-                <div class="absolute -top-24 -right-24 w-48 h-48 bg-blue-600/10 rounded-full blur-3xl pointer-events-none"></div>
-                <div class="text-center mb-8">
-                    <div class="inline-flex p-3 rounded-2xl bg-blue-950/60 text-blue-400 mb-3 border border-blue-800/40">
-                        <i class="fa-solid fa-shield-halved text-2xl"></i>
-                    </div>
-                    <h2 class="text-2xl font-bold text-white">Sincronización Multi-dispositivo</h2>
-                    <p class="text-xs text-gray-400 mt-1">Ingresa una cuenta para acceder a tu saldo desde cualquier dispositivo</p>
-                </div>
-
-                <form id="authForm" class="space-y-4">
-                    <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">Correo Electrónico</label>
-                        <div class="relative">
-                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500"><i class="fa-solid fa-envelope"></i></span>
-                            <input type="email" id="authEmail" required class="w-full bg-black/60 border border-gray-800 rounded-xl pl-10 pr-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all" placeholder="ejemplo@tri.com">
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">Contraseña</label>
-                        <div class="relative">
-                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500"><i class="fa-solid fa-lock"></i></span>
-                            <input type="password" id="authPassword" required minlength="6" class="w-full bg-black/60 border border-gray-800 rounded-xl pl-10 pr-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all" placeholder="••••••••">
-                        </div>
-                    </div>
-
-                    <div id="authError" class="hidden p-3 rounded-xl bg-red-950/50 border border-red-800/50 text-red-400 text-xs"></div>
-
-                    <div class="grid grid-cols-2 gap-3 pt-2">
-                        <button type="submit" id="btnLoginSubmit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-xl text-sm transition-all shadow-lg shadow-blue-900/30">
-                            Iniciar Sesión
-                        </button>
-                        <button type="button" id="btnRegisterSubmit" class="w-full bg-gray-900 hover:bg-gray-800 border border-gray-700 text-gray-300 font-semibold py-3 px-4 rounded-xl text-sm transition-all">
-                            Registrarse
-                        </button>
-                    </div>
-                </form>
-            </div>
-
-            <!-- DASHBOARD SECTION (Visible cuando se inicia sesión) -->
-            <div id="dashboardSection" class="hidden space-y-8">
+            <!-- DASHBOARD SECTION -->
+            <div class="space-y-8">
                 
                 <!-- SUMMARY CARDS GRID -->
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
@@ -175,8 +128,8 @@
                             </div>
                         </div>
                         <div class="text-xs text-gray-400 border-t border-gray-800/60 pt-3 flex items-center justify-between z-10">
-                            <span>Sincronizado en tiempo real</span>
-                            <i class="fa-solid fa-arrows-rotate text-gray-500 text-xs"></i>
+                            <span>Guardado en dispositivo</span>
+                            <i class="fa-solid fa-hard-drive text-gray-500 text-xs"></i>
                         </div>
                     </div>
 
@@ -235,7 +188,6 @@
                                     <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">Monto ($)</label>
                                     <div class="relative">
                                         <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">$</span>
-                                        <!-- Permitir montos positivos y negativos sin min restriction -->
                                         <input type="number" step="0.01" id="montoRecarga" required class="w-full bg-black/60 border border-gray-800 rounded-xl pl-8 pr-4 py-2.5 text-sm text-white font-mono focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500" placeholder="Ej: 5000 o -15000">
                                     </div>
                                     <p class="text-[10px] text-gray-500 mt-1">Usa signo menos (-) para saldo inicial negativo</p>
@@ -247,7 +199,7 @@
                             </div>
                             <div>
                                 <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">Nota / Método de Pago (Opcional)</label>
-                                <input type="text" id="notaRecarga" class="w-full bg-black/60 border border-gray-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500" placeholder="Ej: Transferencia, Efectivo, Depósito empresarial">
+                                <input type="text" id="notaRecarga" class="w-full bg-black/60 border border-gray-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500" placeholder="Ej: Transferencia, Efectivo, Depósito">
                             </div>
                             <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-xl text-sm transition-all shadow-lg shadow-blue-900/30 flex items-center justify-center space-x-2">
                                 <i class="fa-solid fa-check"></i>
@@ -279,7 +231,7 @@
                                 </div>
                                 <div>
                                     <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">Litros Cargados</label>
-                                    <input type="number" step="0.01" id="litrosGasto" class="w-full bg-black/60 border border-gray-800 rounded-xl px-4 py-2.5 text-sm text-white font-mono focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500" placeholder="Ej: 45 font-mono">
+                                    <input type="number" step="0.01" id="litrosGasto" class="w-full bg-black/60 border border-gray-800 rounded-xl px-4 py-2.5 text-sm text-white font-mono focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500" placeholder="Ej: 45">
                                 </div>
                             </div>
 
@@ -296,7 +248,7 @@
 
                             <div>
                                 <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">Observaciones / Estación</label>
-                                <input type="text" id="notaGasto" class="w-full bg-black/60 border border-gray-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500" placeholder="Ej: Estación de Servicio Centro">
+                                <input type="text" id="notaGasto" class="w-full bg-black/60 border border-gray-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500" placeholder="Ej: Estación Centro">
                             </div>
 
                             <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-xl text-sm transition-all shadow-lg shadow-indigo-900/30 flex items-center justify-center space-x-2">
@@ -313,7 +265,7 @@
                     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
                         <div>
                             <h3 class="text-lg font-bold text-white">Historial de Movimientos</h3>
-                            <p class="text-xs text-gray-400">Puedes eliminar cualquier registro en caso de equivocación</p>
+                            <p class="text-xs text-gray-400">Puedes borrar cualquier movimiento para corregir el saldo</p>
                         </div>
 
                         <!-- FILTROS Y BÚSQUEDA -->
@@ -361,60 +313,20 @@
 
         <!-- FOOTER -->
         <footer class="border-t border-gray-900 bg-black/40 py-6 text-center text-xs text-gray-600">
-            <p>T.R.I &copy; Sistema de Control de Saldo de Combustible Multi-Dispositivo</p>
+            <p>T.R.I &copy; Sistema de Control de Saldo de Combustible</p>
         </footer>
 
     </div>
 
-    <!-- FIREBASE SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
-
-    <!-- MAIN JAVASCRIPT APP CODE -->
+    <!-- MAIN JAVASCRIPT CODE -->
     <script>
-        // CONFIGURACIÓN DE FIREBASE (Usa Firebase Demo / Emulado para Persistencia del lado del cliente)
-        const firebaseConfig = {
-            apiKey: "AIzaSyDemoKeyForFuelAppT.R.I2026",
-            authDomain: "tri-combustible.firebaseapp.com",
-            projectId: "tri-combustible",
-            storageBucket: "tri-combustible.appspot.com",
-            messagingSenderId: "123456789012",
-            appId: "1:123456789012:web:abcdef123456"
-        };
-
-        // Inicializar Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
-
-        // Habilitar persistencia offline para Firebase
-        db.enablePersistence({synchronizeTabs: true}).catch(err => {
-            console.log("Modo sin conexión listo.");
-        });
-
-        // ESTADO GLOBAL LOCAL
-        let currentUser = null;
-        let unsubscribeSnapshot = null;
-        let allMovimientos = [];
+        // ALMACENAMIENTO LOCAL EN LUGAR DE LOGIN
+        let allMovimientos = JSON.parse(localStorage.getItem('tri_movimientos')) || [];
 
         // FECHA ACTUAL POR DEFECTO EN INPUTS
         const todayStr = new Date().toISOString().split('T')[0];
         document.getElementById('fechaRecarga').value = todayStr;
         document.getElementById('fechaGasto').value = todayStr;
-
-        // ELEMENTOS DEL DOM
-        const authSection = document.getElementById('authSection');
-        const dashboardSection = document.getElementById('dashboardSection');
-        const userProfile = document.getElementById('userProfile');
-        const userEmail = document.getElementById('userEmail');
-        const syncBadge = document.getElementById('syncBadge');
-        const authForm = document.getElementById('authForm');
-        const authEmail = document.getElementById('authEmail');
-        const authPassword = document.getElementById('authPassword');
-        const authError = document.getElementById('authError');
-        const btnLogout = document.getElementById('btnLogout');
-        const btnRegisterSubmit = document.getElementById('btnRegisterSubmit');
 
         // ELEMENTOS DASHBOARD
         const saldoAmount = document.getElementById('saldoAmount');
@@ -433,103 +345,14 @@
         const searchInput = document.getElementById('searchInput');
         const filterType = document.getElementById('filterType');
 
-        // --- SISTEMA DE AUTENTICACIÓN Y MULTI-DISPOSITIVO ---
-
-        auth.onAuthStateChanged(user => {
-            if (user) {
-                currentUser = user;
-                userEmail.textContent = user.email;
-                authSection.classList.add('hidden');
-                dashboardSection.classList.remove('hidden');
-                userProfile.classList.remove('hidden');
-                userProfile.classList.add('flex');
-                syncBadge.classList.remove('hidden');
-                syncBadge.classList.add('flex');
-
-                // Escuchar datos en tiempo real para este usuario
-                listenToUserData(user.uid);
-            } else {
-                currentUser = null;
-                if (unsubscribeSnapshot) unsubscribeSnapshot();
-                authSection.classList.remove('hidden');
-                dashboardSection.classList.add('hidden');
-                userProfile.classList.add('hidden');
-                userProfile.classList.remove('flex');
-                syncBadge.classList.add('hidden');
-                syncBadge.classList.remove('flex');
-            }
-        });
-
-        // Iniciar Sesión
-        authForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            authError.classList.add('hidden');
-            try {
-                await auth.signInWithEmailAndPassword(authEmail.value, authPassword.value);
-            } catch (error) {
-                showAuthError(getErrorMessage(error.code));
-            }
-        });
-
-        // Registro de Nuevo Usuario
-        btnRegisterSubmit.addEventListener('click', async () => {
-            authError.classList.add('hidden');
-            if (!authEmail.value || !authPassword.value) {
-                showAuthError("Ingresa un correo y una contraseña válida");
-                return;
-            }
-            try {
-                await auth.createUserWithEmailAndPassword(authEmail.value, authPassword.value);
-            } catch (error) {
-                showAuthError(getErrorMessage(error.code));
-            }
-        });
-
-        // Cerrar Sesión
-        btnLogout.addEventListener('click', () => {
-            auth.signOut();
-        });
-
-        function showAuthError(msg) {
-            authError.textContent = msg;
-            authError.classList.remove('hidden');
+        // GUARDAR EN LOCALSTORAGE
+        function saveData() {
+            localStorage.setItem('tri_movimientos', JSON.stringify(allMovimientos));
+            renderApp();
         }
-
-        function getErrorMessage(code) {
-            switch(code) {
-                case 'auth/user-not-found': return 'No existe cuenta con este correo';
-                case 'auth/wrong-password': return 'Contraseña incorrecta';
-                case 'auth/email-already-in-use': return 'El correo ya está registrado';
-                case 'auth/weak-password': return 'La contraseña debe tener al menos 6 caracteres';
-                default: return 'Error de autenticación. Verifica tus credenciales';
-            }
-        }
-
-        // --- FIRESTORE REAL-TIME DATA LISTENER ---
-
-        function listenToUserData(userId) {
-            unsubscribeSnapshot = db.collection('users')
-                .doc(userId)
-                .collection('movimientos')
-                .orderBy('fecha', 'desc')
-                .onSnapshot(snapshot => {
-                    allMovimientos = [];
-                    snapshot.forEach(doc => {
-                        allMovimientos.push({
-                            id: doc.id,
-                            ...doc.data()
-                        });
-                    });
-                    renderApp();
-                }, err => {
-                    console.error("Error al obtener datos:", err);
-                });
-        }
-
-        // --- OPERACIONES CRUD (AGREGAR / BORRAR) ---
 
         // AGREGAR RECARGA (Permite valores positivos y negativos)
-        formRecarga.addEventListener('submit', async (e) => {
+        formRecarga.addEventListener('submit', (e) => {
             e.preventDefault();
             const monto = parseFloat(document.getElementById('montoRecarga').value);
             const fecha = document.getElementById('fechaRecarga').value;
@@ -537,24 +360,23 @@
 
             if (isNaN(monto) || !fecha) return;
 
-            try {
-                await db.collection('users').doc(currentUser.uid).collection('movimientos').add({
-                    tipo: 'RECARGA',
-                    monto: monto,
-                    fecha: fecha,
-                    nota: nota || 'Acredito de Saldo',
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
+            const nuevoMovimiento = {
+                id: Date.now().toString(),
+                tipo: 'RECARGA',
+                monto: monto,
+                fecha: fecha,
+                nota: nota || 'Acredito de Saldo'
+            };
 
-                formRecarga.reset();
-                document.getElementById('fechaRecarga').value = todayStr;
-            } catch (err) {
-                alert("Error al guardar la recarga: " + err.message);
-            }
+            allMovimientos.unshift(nuevoMovimiento);
+            saveData();
+
+            formRecarga.reset();
+            document.getElementById('fechaRecarga').value = todayStr;
         });
 
         // AGREGAR GASTO DE COMBUSTIBLE
-        formGasto.addEventListener('submit', async (e) => {
+        formGasto.addEventListener('submit', (e) => {
             e.preventDefault();
             const monto = parseFloat(document.getElementById('montoGasto').value);
             const litros = parseFloat(document.getElementById('litrosGasto').value) || 0;
@@ -564,37 +386,32 @@
 
             if (isNaN(monto) || monto <= 0 || !fecha) return;
 
-            try {
-                await db.collection('users').doc(currentUser.uid).collection('movimientos').add({
-                    tipo: 'GASTO',
-                    monto: monto,
-                    litros: litros,
-                    vehiculo: vehiculo || 'N/A',
-                    fecha: fecha,
-                    nota: nota || 'Carga de Combustible',
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
+            const nuevoMovimiento = {
+                id: Date.now().toString(),
+                tipo: 'GASTO',
+                monto: monto,
+                litros: litros,
+                vehiculo: vehiculo || 'N/A',
+                fecha: fecha,
+                nota: nota || 'Carga de Combustible'
+            };
 
-                formGasto.reset();
-                document.getElementById('fechaGasto').value = todayStr;
-            } catch (err) {
-                alert("Error al guardar el gasto: " + err.message);
-            }
+            allMovimientos.unshift(nuevoMovimiento);
+            saveData();
+
+            formGasto.reset();
+            document.getElementById('fechaGasto').value = todayStr;
         });
 
-        // BORRAR UN MOVIMIENTO (RECARGA O GASTO)
-        async function deleteMovimiento(id) {
+        // BORRAR UN MOVIMIENTO
+        function deleteMovimiento(id) {
             if (confirm("¿Estás seguro de eliminar este registro? Se recalculará el saldo inmediatamente.")) {
-                try {
-                    await db.collection('users').doc(currentUser.uid).collection('movimientos').doc(id).delete();
-                } catch (err) {
-                    alert("Error al eliminar registro: " + err.message);
-                }
+                allMovimientos = allMovimientos.filter(m => m.id !== id);
+                saveData();
             }
         }
 
-        // --- CÁLCULOS Y RENDERIZADO DE INTERFAZ ---
-
+        // CÁLCULOS Y RENDERIZADO
         function renderApp() {
             let totalRecargas = 0;
             let totalGastos = 0;
@@ -611,16 +428,15 @@
                 }
             });
 
-            // EL SALDO FINAL ES: SUMA DE RECARGAS - SUMA DE GASTOS
+            // EL SALDO FINAL ES: RECARGAS - GASTOS
             const saldoActual = totalRecargas - totalGastos;
 
-            // ACTULIZAR METRICAS
+            // ACTUALIZAR METRICAS
             totalRecargasAmount.textContent = formatCurrency(totalRecargas);
             totalGastosAmount.textContent = formatCurrency(totalGastos);
             countRecargas.textContent = countR;
             countGastos.textContent = countG;
 
-            // ACTUALIZAR ESTADO VISUAL DEL SALDO (SI ES NEGATIVO -> DEUDA)
             saldoAmount.textContent = formatCurrency(saldoActual);
 
             if (saldoActual < 0) {
@@ -630,14 +446,13 @@
                 saldoStatusBadge.className = "px-3 py-1 rounded-full text-xs font-bold tracking-wider uppercase bg-red-950/80 text-red-400 border border-red-700/60 animate-pulse";
                 saldoStatusBadge.textContent = "DEUDA";
             } else {
-                // ESTADO NORMAL (AZUL / VERDE)
+                // ESTADO NORMAL (VERDE / AZUL)
                 saldoCard.className = "md:col-span-2 glass-card rounded-2xl p-6 relative overflow-hidden flex flex-col justify-between transition-all duration-300";
                 saldoAmount.className = "text-4xl sm:text-5xl font-extrabold tracking-tight mono text-white";
                 saldoStatusBadge.className = "px-3 py-1 rounded-full text-xs font-bold tracking-wider uppercase bg-emerald-950/80 text-emerald-400 border border-emerald-800/60";
                 saldoStatusBadge.textContent = "A FAVOR";
             }
 
-            // RENDER TABLA
             renderTable();
         }
 
@@ -706,7 +521,6 @@
             }
         }
 
-        // FORMATO MONEDA ($1,234.56)
         function formatCurrency(val) {
             return new Intl.NumberFormat('es-AR', {
                 style: 'currency',
@@ -715,12 +529,14 @@
             }).format(val || 0);
         }
 
-        // ESCAPAR HTML PARA PREVENIR INYECCIÓN
         function escapeHtml(text) {
             const div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML;
         }
+
+        // INICIALIZAR RENDER
+        renderApp();
     </script>
 </body>
 </html>
