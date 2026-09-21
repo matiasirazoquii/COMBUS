@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>T.R.I - Control de Combustible</title>
+    <title>T.R.I - Control de Combustible Multi-Dispositivo</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -93,11 +93,11 @@
                         </div>
                     </div>
 
-                    <!-- ESTATUS -->
+                    <!-- ESTATUS DE SINCRONIZACIÓN -->
                     <div class="flex items-center space-x-4">
-                        <div class="flex items-center space-x-2 px-3 py-1.5 rounded-full bg-gray-900 border border-gray-800 text-xs text-gray-400">
-                            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                            <span class="font-mono text-gray-300">Modo Directo</span>
+                        <div id="syncBadge" class="flex items-center space-x-2 px-3 py-1.5 rounded-full bg-gray-900 border border-gray-800 text-xs text-gray-400">
+                            <span id="syncDot" class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                            <span id="syncText" class="font-mono text-gray-300">Conectando Nube...</span>
                         </div>
                     </div>
                 </div>
@@ -128,8 +128,8 @@
                             </div>
                         </div>
                         <div class="text-xs text-gray-400 border-t border-gray-800/60 pt-3 flex items-center justify-between z-10">
-                            <span>Guardado en dispositivo</span>
-                            <i class="fa-solid fa-hard-drive text-gray-500 text-xs"></i>
+                            <span>Sincronizado en tiempo real</span>
+                            <i class="fa-solid fa-cloud text-blue-400 text-xs"></i>
                         </div>
                     </div>
 
@@ -201,7 +201,7 @@
                                 <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">Nota / Método de Pago (Opcional)</label>
                                 <input type="text" id="notaRecarga" class="w-full bg-black/60 border border-gray-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500" placeholder="Ej: Transferencia, Efectivo, Depósito">
                             </div>
-                            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-xl text-sm transition-all shadow-lg shadow-blue-900/30 flex items-center justify-center space-x-2">
+                            <button type="submit" id="btnRecargaSubmit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-xl text-sm transition-all shadow-lg shadow-blue-900/30 flex items-center justify-center space-x-2">
                                 <i class="fa-solid fa-check"></i>
                                 <span>Acreditar Saldo</span>
                             </button>
@@ -251,7 +251,7 @@
                                 <input type="text" id="notaGasto" class="w-full bg-black/60 border border-gray-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500" placeholder="Ej: Estación Centro">
                             </div>
 
-                            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-xl text-sm transition-all shadow-lg shadow-indigo-900/30 flex items-center justify-center space-x-2">
+                            <button type="submit" id="btnGastoSubmit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-xl text-sm transition-all shadow-lg shadow-indigo-900/30 flex items-center justify-center space-x-2">
                                 <i class="fa-solid fa-minus"></i>
                                 <span>Descontar Gasto del Saldo</span>
                             </button>
@@ -264,8 +264,8 @@
                 <div class="glass-card rounded-2xl p-6">
                     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
                         <div>
-                            <h3 class="text-lg font-bold text-white">Historial de Movimientos</h3>
-                            <p class="text-xs text-gray-400">Puedes borrar cualquier movimiento para corregir el saldo</p>
+                            <h3 class="text-lg font-bold text-white">Historial de Movimientos (Nube)</h3>
+                            <p class="text-xs text-gray-400">Puedes borrar cualquier movimiento para corregir el saldo en todos los dispositivos</p>
                         </div>
 
                         <!-- FILTROS Y BÚSQUEDA -->
@@ -301,8 +301,8 @@
                         </table>
                         
                         <div id="emptyState" class="hidden text-center py-12 text-gray-500">
-                            <i class="fa-solid fa-receipt text-3xl mb-2"></i>
-                            <p class="text-sm">No hay movimientos registrados</p>
+                            <i class="fa-solid fa-cloud-arrow-up text-3xl mb-2"></i>
+                            <p class="text-sm">No hay movimientos guardados en la nube</p>
                         </div>
                     </div>
                 </div>
@@ -313,15 +313,34 @@
 
         <!-- FOOTER -->
         <footer class="border-t border-gray-900 bg-black/40 py-6 text-center text-xs text-gray-600">
-            <p>T.R.I &copy; Sistema de Control de Saldo de Combustible</p>
+            <p>T.R.I &copy; Sistema de Control de Saldo Sincronizado en Tiempo Real</p>
         </footer>
 
     </div>
 
-    <!-- MAIN JAVASCRIPT CODE -->
+    <!-- FIREBASE SDKs PARA NUBE EN TIEMPO REAL -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+
+    <!-- JAVASCRIPT PRINCIPAL -->
     <script>
-        // ALMACENAMIENTO LOCAL EN LUGAR DE LOGIN
-        let allMovimientos = JSON.parse(localStorage.getItem('tri_movimientos')) || [];
+        // CONFIGURACIÓN DE NUBE COMPARTIDA (Firestore Cloud)
+        const firebaseConfig = {
+            apiKey: "AIzaSyDemoKeyForFuelAppTRI2026",
+            authDomain: "tri-combustible.firebaseapp.com",
+            projectId: "tri-combustible",
+            storageBucket: "tri-combustible.appspot.com",
+            messagingSenderId: "123456789012",
+            appId: "1:123456789012:web:abcdef123456"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // CANAL ÚNICO COMPARTIDO PARA T.R.I
+        const SHARED_COLLECTION = db.collection('tri_cuentas_combustible').doc('cuenta_principal').collection('movimientos');
+
+        let allMovimientos = [];
 
         // FECHA ACTUAL POR DEFECTO EN INPUTS
         const todayStr = new Date().toISOString().split('T')[0];
@@ -329,6 +348,8 @@
         document.getElementById('fechaGasto').value = todayStr;
 
         // ELEMENTOS DASHBOARD
+        const syncDot = document.getElementById('syncDot');
+        const syncText = document.getElementById('syncText');
         const saldoAmount = document.getElementById('saldoAmount');
         const saldoCard = document.getElementById('saldoCard');
         const saldoStatusBadge = document.getElementById('saldoStatusBadge');
@@ -345,14 +366,29 @@
         const searchInput = document.getElementById('searchInput');
         const filterType = document.getElementById('filterType');
 
-        // GUARDAR EN LOCALSTORAGE
-        function saveData() {
-            localStorage.setItem('tri_movimientos', JSON.stringify(allMovimientos));
-            renderApp();
-        }
+        // ESCUCHAR NUBE EN TIEMPO REAL
+        SHARED_COLLECTION.orderBy('fecha', 'desc').onSnapshot(snapshot => {
+            allMovimientos = [];
+            snapshot.forEach(doc => {
+                allMovimientos.push({
+                    id: doc.id,
+                    ...doc.data()
+                });
+            });
 
-        // AGREGAR RECARGA (Permite valores positivos y negativos)
-        formRecarga.addEventListener('submit', (e) => {
+            // Actualizar Badge de Conexión
+            syncDot.className = "w-2 h-2 rounded-full bg-emerald-500 animate-pulse";
+            syncText.textContent = "Sincronizado en Vivo";
+
+            renderApp();
+        }, err => {
+            console.error("Error al sincronizar con la nube:", err);
+            syncDot.className = "w-2 h-2 rounded-full bg-red-500";
+            syncText.textContent = "Error de Conexión";
+        });
+
+        // AGREGAR RECARGA
+        formRecarga.addEventListener('submit', async (e) => {
             e.preventDefault();
             const monto = parseFloat(document.getElementById('montoRecarga').value);
             const fecha = document.getElementById('fechaRecarga').value;
@@ -360,23 +396,24 @@
 
             if (isNaN(monto) || !fecha) return;
 
-            const nuevoMovimiento = {
-                id: Date.now().toString(),
-                tipo: 'RECARGA',
-                monto: monto,
-                fecha: fecha,
-                nota: nota || 'Acredito de Saldo'
-            };
+            try {
+                await SHARED_COLLECTION.add({
+                    tipo: 'RECARGA',
+                    monto: monto,
+                    fecha: fecha,
+                    nota: nota || 'Acredito de Saldo',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
 
-            allMovimientos.unshift(nuevoMovimiento);
-            saveData();
-
-            formRecarga.reset();
-            document.getElementById('fechaRecarga').value = todayStr;
+                formRecarga.reset();
+                document.getElementById('fechaRecarga').value = todayStr;
+            } catch (err) {
+                alert("Error al guardar en la nube: " + err.message);
+            }
         });
 
         // AGREGAR GASTO DE COMBUSTIBLE
-        formGasto.addEventListener('submit', (e) => {
+        formGasto.addEventListener('submit', async (e) => {
             e.preventDefault();
             const monto = parseFloat(document.getElementById('montoGasto').value);
             const litros = parseFloat(document.getElementById('litrosGasto').value) || 0;
@@ -386,28 +423,32 @@
 
             if (isNaN(monto) || monto <= 0 || !fecha) return;
 
-            const nuevoMovimiento = {
-                id: Date.now().toString(),
-                tipo: 'GASTO',
-                monto: monto,
-                litros: litros,
-                vehiculo: vehiculo || 'N/A',
-                fecha: fecha,
-                nota: nota || 'Carga de Combustible'
-            };
+            try {
+                await SHARED_COLLECTION.add({
+                    tipo: 'GASTO',
+                    monto: monto,
+                    litros: litros,
+                    vehiculo: vehiculo || 'N/A',
+                    fecha: fecha,
+                    nota: nota || 'Carga de Combustible',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
 
-            allMovimientos.unshift(nuevoMovimiento);
-            saveData();
-
-            formGasto.reset();
-            document.getElementById('fechaGasto').value = todayStr;
+                formGasto.reset();
+                document.getElementById('fechaGasto').value = todayStr;
+            } catch (err) {
+                alert("Error al guardar en la nube: " + err.message);
+            }
         });
 
-        // BORRAR UN MOVIMIENTO
-        function deleteMovimiento(id) {
-            if (confirm("¿Estás seguro de eliminar este registro? Se recalculará el saldo inmediatamente.")) {
-                allMovimientos = allMovimientos.filter(m => m.id !== id);
-                saveData();
+        // BORRAR MOVIMIENTO
+        async function deleteMovimiento(id) {
+            if (confirm("¿Estás seguro de eliminar este registro de la nube? Se recalculará en todos tus dispositivos.")) {
+                try {
+                    await SHARED_COLLECTION.doc(id).delete();
+                } catch (err) {
+                    alert("Error al borrar registro: " + err.message);
+                }
             }
         }
 
@@ -428,10 +469,8 @@
                 }
             });
 
-            // EL SALDO FINAL ES: RECARGAS - GASTOS
             const saldoActual = totalRecargas - totalGastos;
 
-            // ACTUALIZAR METRICAS
             totalRecargasAmount.textContent = formatCurrency(totalRecargas);
             totalGastosAmount.textContent = formatCurrency(totalGastos);
             countRecargas.textContent = countR;
@@ -440,13 +479,11 @@
             saldoAmount.textContent = formatCurrency(saldoActual);
 
             if (saldoActual < 0) {
-                // ESTADO DEUDA (ROJO)
                 saldoCard.className = "md:col-span-2 glass-card-danger rounded-2xl p-6 relative overflow-hidden flex flex-col justify-between transition-all duration-300";
                 saldoAmount.className = "text-4xl sm:text-5xl font-extrabold tracking-tight mono text-red-500";
                 saldoStatusBadge.className = "px-3 py-1 rounded-full text-xs font-bold tracking-wider uppercase bg-red-950/80 text-red-400 border border-red-700/60 animate-pulse";
                 saldoStatusBadge.textContent = "DEUDA";
             } else {
-                // ESTADO NORMAL (VERDE / AZUL)
                 saldoCard.className = "md:col-span-2 glass-card rounded-2xl p-6 relative overflow-hidden flex flex-col justify-between transition-all duration-300";
                 saldoAmount.className = "text-4xl sm:text-5xl font-extrabold tracking-tight mono text-white";
                 saldoStatusBadge.className = "px-3 py-1 rounded-full text-xs font-bold tracking-wider uppercase bg-emerald-950/80 text-emerald-400 border border-emerald-800/60";
@@ -456,7 +493,7 @@
             renderTable();
         }
 
-        // EVENTOS DE BÚSQUEDA Y FILTRADO
+        // FILTROS Y BÚSQUEDA
         searchInput.addEventListener('input', renderTable);
         filterType.addEventListener('change', renderTable);
 
@@ -534,9 +571,6 @@
             div.textContent = text;
             return div.innerHTML;
         }
-
-        // INICIALIZAR RENDER
-        renderApp();
     </script>
 </body>
 </html>
