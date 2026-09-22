@@ -4,21 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>T.R.I - Control de Combustible</title>
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        dark: { 900: '#0B0F19', 800: '#111827', 700: '#1F2937' }
-                    }
-                }
-            }
-        }
-    </script>
-    <!-- Font Awesome & Google Fonts -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
     <style>
@@ -32,116 +18,81 @@
 
     <!-- HEADER -->
     <header class="border-b border-gray-800/80 bg-black/60 backdrop-blur-md sticky top-0 z-40">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+        <div class="max-w-7xl mx-auto px-4 h-20 flex items-center justify-between">
             <div class="flex items-center space-x-3">
-                <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-blue-900 via-blue-600 to-indigo-500 p-0.5 shadow-lg shadow-blue-900/40 flex items-center justify-center">
-                    <div class="w-full h-full bg-dark-900 rounded-[10px] flex items-center justify-center">
-                        <span class="font-extrabold text-xl tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-indigo-300 to-white">T.R.I</span>
-                    </div>
-                </div>
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-900 via-blue-600 to-indigo-500 flex items-center justify-center font-extrabold text-white text-xl shadow-lg shadow-blue-900/40">T.R.I</div>
                 <div>
                     <h1 class="text-xl font-black text-white">T.R.I</h1>
                     <p class="text-xs text-gray-400">Control & Gestión de Combustible</p>
                 </div>
             </div>
-            
-            <!-- ESTADO DE CONEXIÓN MULTI-DISPOSITIVO -->
             <div id="statusBadge" class="flex items-center space-x-2 px-3 py-1.5 rounded-full bg-gray-900 border border-gray-800 text-xs text-amber-400">
                 <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
-                <span id="statusText" class="font-mono">Conectando a red T.R.I...</span>
+                <span id="statusText">Conectando a Firebase...</span>
             </div>
         </div>
     </header>
 
     <!-- CONTENIDO PRINCIPAL -->
-    <main class="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 flex-1">
+    <main class="max-w-7xl w-full mx-auto px-4 py-8 space-y-8 flex-1">
         
         <!-- TARJETAS DE RESUMEN -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
-            <div id="saldoCard" class="md:col-span-2 glass-card rounded-2xl p-6 flex flex-col justify-between">
-                <div class="flex justify-between items-center">
-                    <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Saldo Disponible</span>
-                    <span id="saldoStatus" class="px-3 py-1 rounded-full text-xs font-bold uppercase bg-emerald-950 text-emerald-400 border border-emerald-800">A FAVOR</span>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <div id="saldoCard" class="glass-card rounded-2xl p-6 md:col-span-1">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-xs font-bold text-gray-400 uppercase">Saldo Disponible</span>
+                    <span id="saldoStatus" class="px-2 py-0.5 rounded-full text-xs font-bold uppercase bg-emerald-950 text-emerald-400 border border-emerald-800">A FAVOR</span>
                 </div>
-                <div class="my-4">
-                    <div class="text-xs text-gray-400 mb-1">Cuenta Compartida T.R.I</div>
-                    <div id="saldoAmount" class="text-4xl sm:text-5xl font-extrabold mono text-white">$0.00</div>
-                </div>
-                <div class="text-xs text-gray-500 border-t border-gray-800/60 pt-3 flex justify-between">
-                    <span>Sincronización automática</span>
-                    <i class="fa-solid fa-cloud text-blue-400"></i>
-                </div>
+                <div id="saldoAmount" class="text-4xl font-extrabold mono my-2">$0.00</div>
+                <p class="text-xs text-gray-500 flex items-center gap-1"><i class="fa-solid fa-cloud text-blue-400"></i> Sincronizado en tiempo real</p>
             </div>
 
-            <div class="glass-card rounded-2xl p-6 flex flex-col justify-between border-l-4 border-l-emerald-500">
+            <div class="glass-card rounded-2xl p-6 border-l-4 border-l-emerald-500">
                 <span class="text-xs font-bold text-gray-400 uppercase">Total Recargado</span>
                 <div id="totalRecargas" class="text-2xl font-bold mono text-emerald-400 my-2">$0.00</div>
-                <span class="text-xs text-gray-500"><span id="countR">0</span> depósitos</span>
             </div>
 
-            <div class="glass-card rounded-2xl p-6 flex flex-col justify-between border-l-4 border-l-red-500">
+            <div class="glass-card rounded-2xl p-6 border-l-4 border-l-red-500">
                 <span class="text-xs font-bold text-gray-400 uppercase">Total Consumido</span>
                 <div id="totalGastos" class="text-2xl font-bold mono text-red-400 my-2">$0.00</div>
-                <span class="text-xs text-gray-500"><span id="countG">0</span> cargas</span>
             </div>
         </div>
 
         <!-- FORMULARIOS -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            
-            <!-- FORMULARIO RECARGA -->
             <div class="glass-card rounded-2xl p-6 border-t-2 border-t-blue-500">
-                <div class="flex items-center space-x-3 mb-6">
-                    <div class="w-10 h-10 rounded-xl bg-blue-950 text-blue-400 flex items-center justify-center border border-blue-800">
-                        <i class="fa-solid fa-plus text-lg"></i>
+                <h3 class="text-lg font-bold text-white mb-4"><i class="fa-solid fa-plus text-blue-400 mr-2"></i>Cargar Recarga / Saldo</h3>
+                <form id="formRecarga" class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-400 mb-1">MONTO ($)</label>
+                        <input type="number" step="0.01" id="montoRecarga" required placeholder="Ej: 5000 o -15000" class="w-full bg-black/60 border border-gray-800 rounded-xl p-3 text-sm text-white mono focus:border-blue-500 focus:outline-none">
                     </div>
                     <div>
-                        <h3 class="text-lg font-bold text-white">Cargar Recarga / Saldo</h3>
-                        <p class="text-xs text-gray-400">Ingresa saldo positivo o deuda inicial (-)</p>
-                    </div>
-                </div>
-                <form id="formRecarga" class="space-y-4">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-400 mb-1">MONTO ($)</label>
-                            <input type="number" step="0.01" id="montoRecarga" required placeholder="Ej: 5000 o -15000" class="w-full bg-black/60 border border-gray-800 rounded-xl p-3 text-sm text-white mono focus:border-blue-500 focus:outline-none">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-400 mb-1">FECHA</label>
-                            <input type="date" id="fechaRecarga" required class="w-full bg-black/60 border border-gray-800 rounded-xl p-3 text-sm text-white focus:border-blue-500 focus:outline-none">
-                        </div>
+                        <label class="block text-xs font-semibold text-gray-400 mb-1">FECHA</label>
+                        <input type="date" id="fechaRecarga" required class="w-full bg-black/60 border border-gray-800 rounded-xl p-3 text-sm text-white focus:border-blue-500 focus:outline-none">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-gray-400 mb-1">DETALLE / MÉTODO DE PAGO</label>
-                        <input type="text" id="notaRecarga" placeholder="Ej: Transferencia, Efectivo, Saldo Inicial" class="w-full bg-black/60 border border-gray-800 rounded-xl p-3 text-sm text-white focus:border-blue-500 focus:outline-none">
+                        <input type="text" id="notaRecarga" placeholder="Ej: Transferencia, Efectivo" class="w-full bg-black/60 border border-gray-800 rounded-xl p-3 text-sm text-white focus:border-blue-500 focus:outline-none">
                     </div>
                     <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 font-bold py-3 rounded-xl text-sm transition-all shadow-lg shadow-blue-900/40">Acreditar Saldo</button>
                 </form>
             </div>
 
-            <!-- FORMULARIO GASTO -->
             <div class="glass-card rounded-2xl p-6 border-t-2 border-t-indigo-500">
-                <div class="flex items-center space-x-3 mb-6">
-                    <div class="w-10 h-10 rounded-xl bg-indigo-950 text-indigo-400 flex items-center justify-center border border-indigo-800">
-                        <i class="fa-solid fa-gas-pump text-lg"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-lg font-bold text-white">Cargar Gasto de Combustible</h3>
-                        <p class="text-xs text-gray-400">Registra un consumo de la cuenta</p>
-                    </div>
-                </div>
-                <form id="formGasto" class="space-y-4">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <h3 class="text-lg font-bold text-white mb-4"><i class="fa-solid fa-gas-pump text-indigo-400 mr-2"></i>Cargar Gasto de Combustible</h3>
+                <form id="formGasto" class="space-y-3">
+                    <div class="grid grid-cols-2 gap-3">
                         <div>
                             <label class="block text-xs font-semibold text-gray-400 mb-1">MONTO ($)</label>
-                            <input type="number" step="0.01" min="0.01" id="montoGasto" required placeholder="0.00" class="w-full bg-black/60 border border-gray-800 rounded-xl p-3 text-sm text-white mono focus:border-indigo-500 focus:outline-none">
+                            <input type="number" step="0.01" id="montoGasto" required placeholder="0.00" class="w-full bg-black/60 border border-gray-800 rounded-xl p-3 text-sm text-white mono focus:border-indigo-500 focus:outline-none">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-gray-400 mb-1">LITROS CARGADOS</label>
+                            <label class="block text-xs font-semibold text-gray-400 mb-1">LITROS</label>
                             <input type="number" step="0.01" id="litrosGasto" placeholder="Ej: 45" class="w-full bg-black/60 border border-gray-800 rounded-xl p-3 text-sm text-white mono focus:border-indigo-500 focus:outline-none">
                         </div>
                     </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="grid grid-cols-2 gap-3">
                         <div>
                             <label class="block text-xs font-semibold text-gray-400 mb-1">VEHÍCULO / PATENTE</label>
                             <input type="text" id="vehiculoGasto" placeholder="Ej: AB-123-CD" class="w-full bg-black/60 border border-gray-800 rounded-xl p-3 text-sm text-white focus:border-indigo-500 focus:outline-none">
@@ -152,16 +103,15 @@
                         </div>
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-gray-400 mb-1">OBSERVACIONES / ESTACIÓN</label>
+                        <label class="block text-xs font-semibold text-gray-400 mb-1">OBSERVACIONES</label>
                         <input type="text" id="notaGasto" placeholder="Ej: Shell Centro" class="w-full bg-black/60 border border-gray-800 rounded-xl p-3 text-sm text-white focus:border-indigo-500 focus:outline-none">
                     </div>
                     <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 font-bold py-3 rounded-xl text-sm transition-all shadow-lg shadow-indigo-900/40">Descontar Gasto</button>
                 </form>
             </div>
-
         </div>
 
-        <!-- HISTORIAL DE MOVIMIENTOS -->
+        <!-- TABLA HISTORIAL -->
         <div class="glass-card rounded-2xl p-6">
             <h3 class="text-lg font-bold text-white mb-4">Historial de Movimientos</h3>
             <div class="overflow-x-auto">
@@ -187,47 +137,52 @@
         T.R.I &copy; Sistema Multi-Dispositivo
     </footer>
 
-    <!-- LIBRERÍA DE COMUNICACIÓN EN TIEMPO REAL NATIVA -->
-    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <!-- SDK DE FIREBASE COMPAT (CDN) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
 
     <script>
-        // CONFIGURACIÓN DE NUBE GLOBAL COMPARTIDA
-        // Utiliza una API global que sincroniza automáticamente sin pedir credenciales
-        const STORAGE_KEY = 'tri_combustible_data_v1';
-        const SYNC_URL = 'https://api.jsonbin.io/v3/b/65f1234501a40361cd3b1234'; // Repositorio global T.R.I
-        
-        let movimientos = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+        // CONFIGURACIÓN DE TU PROYECTO TRI-COMBUSTIBLE
+        const firebaseConfig = {
+            apiKey: "AIzaSyCGM83HebqIIeJ0YrLSEu_y1HT6njxYumA",
+            authDomain: "tri-combustible.firebaseapp.com",
+            projectId: "tri-combustible",
+            storageBucket: "tri-combustible.firebasestorage.app",
+            messagingSenderId: "930890727389",
+            appId: "1:930890727389:web:75ae51f70694df1bd24034"
+        };
 
+        // INICIALIZACIÓN DE FIREBASE
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const movimientosRef = db.collection('tri_movimientos');
+
+        // FECHA POR DEFECTO HOY
         const today = new Date().toISOString().split('T')[0];
         document.getElementById('fechaRecarga').value = today;
         document.getElementById('fechaGasto').value = today;
 
-        // INICIALIZACIÓN DE ESTADO Y SINCRONIZACIÓN AUTOMÁTICA
-        function initSync() {
-            updateBadge(true, "Conectado Multi-Dispositivo");
-            render();
-        }
+        let movimientos = [];
 
-        function updateBadge(isOk, text) {
+        // ESCUCHAR CAMBIOS EN TIEMPO REAL DESDE CUALQUIER DISPOSITIVO
+        movimientosRef.orderBy('fecha', 'desc').onSnapshot(snapshot => {
+            movimientos = [];
+            snapshot.forEach(doc => movimientos.push({ id: doc.id, ...doc.data() }));
+            
             const badge = document.getElementById('statusBadge');
-            const statusText = document.getElementById('statusText');
-            if (isOk) {
-                badge.className = "flex items-center space-x-2 px-3 py-1.5 rounded-full bg-emerald-950 border border-emerald-800 text-xs text-emerald-400";
-                badge.querySelector('span').className = "w-2 h-2 rounded-full bg-emerald-400 animate-pulse";
-            } else {
-                badge.className = "flex items-center space-x-2 px-3 py-1.5 rounded-full bg-red-950 border border-red-800 text-xs text-red-400";
-                badge.querySelector('span').className = "w-2 h-2 rounded-full bg-red-400";
-            }
-            statusText.textContent = text;
-        }
-
-        function saveLocal() {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(movimientos));
+            badge.className = "flex items-center space-x-2 px-3 py-1.5 rounded-full bg-emerald-950 border border-emerald-800 text-xs text-emerald-400";
+            document.getElementById('statusText').textContent = "Base de datos Conectada";
+            
             render();
-        }
+        }, err => {
+            console.error("Error al conectar con Firestore:", err);
+            const badge = document.getElementById('statusBadge');
+            badge.className = "flex items-center space-x-2 px-3 py-1.5 rounded-full bg-red-950 border border-red-800 text-xs text-red-400";
+            document.getElementById('statusText').textContent = "Error: Verifica las Reglas en Firebase";
+        });
 
-        // AGREGAR RECARGA
-        document.getElementById('formRecarga').addEventListener('submit', (e) => {
+        // FORMULARIO RECARGA
+        document.getElementById('formRecarga').addEventListener('submit', async (e) => {
             e.preventDefault();
             const monto = parseFloat(document.getElementById('montoRecarga').value);
             const fecha = document.getElementById('fechaRecarga').value;
@@ -235,21 +190,20 @@
 
             if (isNaN(monto) || !fecha) return;
 
-            movimientos.unshift({
-                id: Date.now().toString(),
+            await movimientosRef.add({
                 tipo: 'RECARGA',
-                monto,
-                fecha,
-                nota: nota || 'Acredito de Saldo'
+                monto: monto,
+                fecha: fecha,
+                nota: nota || 'Acredito de Saldo',
+                creado: firebase.firestore.FieldValue.serverTimestamp()
             });
 
-            saveLocal();
             e.target.reset();
             document.getElementById('fechaRecarga').value = today;
         });
 
-        // AGREGAR GASTO
-        document.getElementById('formGasto').addEventListener('submit', (e) => {
+        // FORMULARIO GASTO
+        document.getElementById('formGasto').addEventListener('submit', async (e) => {
             e.preventDefault();
             const monto = parseFloat(document.getElementById('montoGasto').value);
             const litros = parseFloat(document.getElementById('litrosGasto').value) || 0;
@@ -259,75 +213,63 @@
 
             if (isNaN(monto) || !fecha) return;
 
-            movimientos.unshift({
-                id: Date.now().toString(),
+            await movimientosRef.add({
                 tipo: 'GASTO',
-                monto,
-                litros,
+                monto: monto,
+                litros: litros,
                 vehiculo: vehiculo || 'N/A',
-                fecha,
-                nota: nota || 'Consumo Combustible'
+                fecha: fecha,
+                nota: nota || 'Consumo Combustible',
+                creado: firebase.firestore.FieldValue.serverTimestamp()
             });
 
-            saveLocal();
             e.target.reset();
             document.getElementById('fechaGasto').value = today;
         });
 
         // BORRAR MOVIMIENTO
-        function borrar(id) {
-            if (confirm("¿Borrar este movimiento?")) {
-                movimientos = movimientos.filter(m => m.id !== id);
-                saveLocal();
+        async function borrar(id) {
+            if (confirm("¿Borrar este movimiento? Se actualizará en todos los dispositivos.")) {
+                await movimientosRef.doc(id).delete();
             }
         }
 
-        // CÁLCULOS Y RENDER
+        // RENDERIZADO Y CÁLCULOS
         function render() {
-            let totalR = 0, totalG = 0, countR = 0, countG = 0;
-
+            let totalR = 0, totalG = 0;
             movimientos.forEach(m => {
-                if (m.tipo === 'RECARGA') {
-                    totalR += m.monto;
-                    countR++;
-                } else if (m.tipo === 'GASTO') {
-                    totalG += m.monto;
-                    countG++;
-                }
+                if (m.tipo === 'RECARGA') totalR += m.monto;
+                if (m.tipo === 'GASTO') totalG += m.monto;
             });
 
             const saldo = totalR - totalG;
-
             document.getElementById('totalRecargas').textContent = format(totalR);
             document.getElementById('totalGastos').textContent = format(totalG);
-            document.getElementById('countR').textContent = countR;
-            document.getElementById('countG').textContent = countG;
             document.getElementById('saldoAmount').textContent = format(saldo);
 
             const card = document.getElementById('saldoCard');
             const badge = document.getElementById('saldoStatus');
 
             if (saldo < 0) {
-                card.className = "md:col-span-2 glass-card-danger rounded-2xl p-6 flex flex-col justify-between";
-                document.getElementById('saldoAmount').className = "text-4xl sm:text-5xl font-extrabold mono text-red-500";
-                badge.className = "px-3 py-1 rounded-full text-xs font-bold uppercase bg-red-950 text-red-400 border border-red-800 animate-pulse";
+                card.className = "glass-card-danger rounded-2xl p-6 md:col-span-1";
+                document.getElementById('saldoAmount').className = "text-4xl font-extrabold mono my-2 text-red-500";
+                badge.className = "px-2 py-0.5 rounded-full text-xs font-bold uppercase bg-red-950 text-red-400 border border-red-800 animate-pulse";
                 badge.textContent = "DEUDA";
             } else {
-                card.className = "md:col-span-2 glass-card rounded-2xl p-6 flex flex-col justify-between";
-                document.getElementById('saldoAmount').className = "text-4xl sm:text-5xl font-extrabold mono text-white";
-                badge.className = "px-3 py-1 rounded-full text-xs font-bold uppercase bg-emerald-950 text-emerald-400 border border-emerald-800";
+                card.className = "glass-card rounded-2xl p-6 md:col-span-1";
+                document.getElementById('saldoAmount').className = "text-4xl font-extrabold mono my-2 text-white";
+                badge.className = "px-2 py-0.5 rounded-full text-xs font-bold uppercase bg-emerald-950 text-emerald-400 border border-emerald-800";
                 badge.textContent = "A FAVOR";
             }
 
             const body = document.getElementById('tablaBody');
             body.innerHTML = '';
-
             movimientos.forEach(m => {
                 const isR = m.tipo === 'RECARGA';
                 body.innerHTML += `
                     <tr class="hover:bg-gray-800/40 transition-colors">
                         <td class="p-3">
-                            <span class="px-2.5 py-1 rounded-md text-xs font-bold ${isR ? 'bg-emerald-950 text-emerald-400 border border-emerald-800/50' : 'bg-red-950 text-red-400 border border-red-800/50'}">
+                            <span class="px-2 py-1 rounded text-xs font-bold ${isR ? 'bg-emerald-950 text-emerald-400 border border-emerald-800/50' : 'bg-red-950 text-red-400 border border-red-800/50'}">
                                 ${m.tipo}
                             </span>
                         </td>
@@ -353,8 +295,6 @@
         function format(val) {
             return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(val || 0);
         }
-
-        initSync();
     </script>
 </body>
 </html>
